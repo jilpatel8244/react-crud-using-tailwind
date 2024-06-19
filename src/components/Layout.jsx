@@ -10,7 +10,7 @@ export default function Layout() {
     <>
       <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
         {sideMenu && <Aside />}
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 h-lvh overflow-auto">
           <Header toggleSideMenu={toggleSideMenu}/>
           <Outlet />
         </div>

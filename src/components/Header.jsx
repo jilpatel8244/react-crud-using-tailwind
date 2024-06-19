@@ -2,14 +2,6 @@ import { Switch, Typography } from "@material-tailwind/react";
 import { useState } from "react";
 
 export default function Header({ toggleSideMenu }) {
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
-
-  const handleThemeChange = () => {
-    setIsDarkTheme(!isDarkTheme);
-    isDarkTheme ? 
-    document.querySelector('html').classList.remove('dark') : 
-    document.querySelector('html').classList.add('dark');
-  }
 
   return (
     <header className="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
@@ -29,21 +21,6 @@ export default function Header({ toggleSideMenu }) {
           </svg>
         </button>
         <ul className="flex items-center flex-shrink-0 space-x-6">
-          {/* <!-- Theme toggler --> */}
-          <li className="flex">
-            <Switch
-              color="blue"
-              checked={isDarkTheme}
-              onChange={handleThemeChange}
-              label={
-                <div>
-                  <Typography color="blue-gray" className="font-medium dark:text-gray-300">
-                    Change Theme
-                  </Typography>
-                </div>
-              }
-            />
-          </li>
           {/* <!-- Profile menu --> */}
           <li className="relative">
             <button

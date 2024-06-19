@@ -1,45 +1,15 @@
 import { useEffect, useState } from "react";
 
-function ProductList() {
-  const [products, setProducts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  let noOfRecordsPerPage = 5;
-  let [totalRecords, setTotalRecords] = useState(1);
+function ProductAdd() {
   const [toggleAddModel, setToggleAddModel] = useState(false);
-  const [editFormData, setEditFormData] = useState({
-    id: "",
+  const [category, setCategory] = useState([]);
+  const [newProductData, setNewProductData] = useState({
     title: "",
     price: "",
     description: "",
     categoryId: 2,
     images: ["https://placeimg.com/640/480/any"],
   });
-  const [category, setCategory] = useState([]);
-
-  useEffect(() => {
-    const getAllProducts = async () => {
-      let offset = (currentPage - 1) * noOfRecordsPerPage;
-      let data = await fetch(
-        `https://api.escuelajs.co/api/v1/products?offset=${offset}&limit=${noOfRecordsPerPage}`
-      );
-      let response = await data.json();
-
-      setProducts(response);
-      console.log(response);
-    };
-    getAllProducts();
-  }, [currentPage]);
-
-  useEffect(() => {
-    const getNoOfRecords = async () => {
-      let data = await fetch(`https://api.escuelajs.co/api/v1/products`);
-      let response = await data.json();
-
-      setTotalRecords(response.length);
-      console.log(response.length);
-    };
-    getNoOfRecords();
-  }, []);
 
   const getAllCategory = async () => {
     let data = await fetch("https://api.escuelajs.co/api/v1/categories");
@@ -48,139 +18,44 @@ function ProductList() {
     setCategory(response);
   };
 
-  const editFormDataHandler = async (event) => {
-    console.log(editFormData);
-    setEditFormData((prevData) => {
-      return {
-        ...prevData,
-        [event.target.name]: [event.target.value],
-      };
-    });
-  };
+  function handleFormData(event) {
+    let { name, value } = event.target;
 
-  function fillData(product) {
-    console.log(product);
-    setEditFormData((prevData) => {
+    setNewProductData((prevData) => {
       return {
         ...prevData,
-        id: product.id,
-        title: product.title,
-        price: product.price,
-        description: product.description,
-        categoryId: product.category.id,
+        [name]: value,
       };
     });
   }
 
-  async function updateProduct(event) {
+  const insertProduct = async (event) => {
     event.preventDefault();
-    let data = await fetch(`https://api.escuelajs.co/api/v1/products/${editFormData.id}`, {
-      method: "PUT",
-      body: editFormData,
+    let data = await fetch("https://api.escuelajs.co/api/v1/products", {
+      method: "POST",
+      body: newProductData,
       headers: {
         "Content-type": "application/json",
-      }
+      },
     });
-  }
+
+    let response = data.json();
+
+    console.log(response);
+  };
 
   return (
-    <div>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg mx-10">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Product id
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Product name
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Category
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Price
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Created at
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="">
-            {products.map((product, index) => {
-              return (
-                <tr
-                  key={product.id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                >
-                  <td className="w-4 p-4">{product.id}</td>
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    {product.title}
-                  </th>
-                  <td className="px-6 py-4">{product.category.name}</td>
-                  <td className="px-6 py-4">{product.price}</td>
-                  <td className="px-6 py-4">{product.creationAt}</td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => {
-                        getAllCategory();
-                        fillData(product);
-                        setToggleAddModel(true);
-                      }}
-                      type="button"
-                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        <nav
-          className="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4"
-          aria-label="Table navigation"
-        >
-          <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
-            Current Page {currentPage}
-          </span>
-          <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
-            <li>
-              <button
-                onClick={() => {
-                  setCurrentPage(currentPage - 1);
-                }}
-                disabled={currentPage === 1 ? true : false}
-                className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                Previous
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => {
-                  setCurrentPage(currentPage + 1);
-                }}
-                disabled={
-                  currentPage === Math.ceil(totalRecords / noOfRecordsPerPage)
-                    ? true
-                    : false
-                }
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                Next
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+    <div className="flex justify-end mx-10 my-3">
+      <button
+        onClick={() => {
+          getAllCategory();
+          setToggleAddModel(true);
+        }}
+        type="button"
+        className="bg-blue-500 text-white px-3 py-1.5 rounded-md"
+      >
+        Add
+      </button>
 
       <div
         id="crud-modal"
@@ -223,8 +98,8 @@ function ProductList() {
             </div>
             <form
               className="p-4 md:p-5"
-              onSubmit={(e) => {
-                updateProduct(e);
+              onSubmit={(event) => {
+                insertProduct(event);
               }}
             >
               <div className="grid gap-4 mb-4 grid-cols-2">
@@ -238,9 +113,11 @@ function ProductList() {
                   <input
                     type="text"
                     name="title"
+                    value={newProductData.title}
+                    onChange={(e) => {
+                      handleFormData(e);
+                    }}
                     id="name"
-                    value={editFormData.title}
-                    onChange={editFormDataHandler}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Type product name"
                     required=""
@@ -256,13 +133,14 @@ function ProductList() {
                   <input
                     type="number"
                     name="price"
-                    id="price"
-                    value={editFormData.price}
+                    value={newProductData.price}
                     onChange={(e) => {
-                      editFormDataHandler(e);
+                      handleFormData(e);
                     }}
+                    id="price"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="$2999"
+                    required=""
                   />
                 </div>
                 <div className="col-span-2 sm:col-span-1">
@@ -275,9 +153,9 @@ function ProductList() {
                   <select
                     id="category"
                     name="categoryId"
-                    value={editFormData.categoryId}
+                    value={newProductData.categoryId}
                     onChange={(e) => {
-                      editFormDataHandler(e);
+                      handleFormData(e);
                     }}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   >
@@ -303,11 +181,11 @@ function ProductList() {
                   <textarea
                     id="description"
                     name="description"
-                    value={editFormData.description}
-                    onChange={(e) => {
-                      editFormDataHandler(e);
-                    }}
                     rows="4"
+                    value={newProductData.description}
+                    onChange={(e) => {
+                      handleFormData(e);
+                    }}
                     className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Write product description here"
                   ></textarea>
@@ -329,7 +207,7 @@ function ProductList() {
                     clipRule="evenodd"
                   ></path>
                 </svg>
-                Edit product
+                Add new product
               </button>
             </form>
           </div>
@@ -339,4 +217,4 @@ function ProductList() {
   );
 }
 
-export default ProductList;
+export default ProductAdd;
